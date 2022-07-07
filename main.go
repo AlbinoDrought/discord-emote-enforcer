@@ -63,6 +63,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	hasAttachments := len(m.Attachments) > 0
+
 	messageText := m.Content
 	// remove all discord emotes
 	messageText = exprEmotes.ReplaceAllString(messageText, "")
@@ -72,13 +74,16 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	messageText = exprWhitespace.ReplaceAllString(messageText, "")
 
 	// if there's anything left, this message had other text in it
-	if messageText == "" {
+	hasNonEmoteText := messageText != ""
+
+	shouldBeRemoved := hasAttachments || hasNonEmoteText
+
+	if !shouldBeRemoved {
 		return
 	}
 
-	log.Printf("deleting message %v with content %v", m.ID, m.Content)
+	log.Printf("deleting message %v with %v attachments, content %v", m.ID, len(m.Attachments), m.Content)
 	if err := s.ChannelMessageDelete(m.ChannelID, m.ID); err != nil {
 		log.Printf("failed to delete message %v: %v", m.ID, err)
-		return
 	}
 }
