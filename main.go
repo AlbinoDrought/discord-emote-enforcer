@@ -16,7 +16,7 @@ var (
 )
 
 var (
-	exprEmotes     = regexp.MustCompile(`(<:[^:]+:\d+>)`)
+	exprEmotes     = regexp.MustCompile(`(<a?:[^:]+:\d+>)`)
 	exprWhitespace = regexp.MustCompile(`(\s+)`)
 )
 
@@ -64,17 +64,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	hasAttachments := len(m.Attachments) > 0
-
-	messageText := m.Content
-	// remove all discord emotes
-	messageText = exprEmotes.ReplaceAllString(messageText, "")
-	// remove all emojis
-	messageText = emoji.RemoveAll(messageText)
-	// remove all whitespace
-	messageText = exprWhitespace.ReplaceAllString(messageText, "")
-
-	// if there's anything left, this message had other text in it
-	hasNonEmoteText := messageText != ""
+	hasNonEmoteText := textContainsNonEmotes(m.Content)
 
 	shouldBeRemoved := hasAttachments || hasNonEmoteText
 
@@ -86,4 +76,16 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if err := s.ChannelMessageDelete(m.ChannelID, m.ID); err != nil {
 		log.Printf("failed to delete message %v: %v", m.ID, err)
 	}
+}
+
+func textContainsNonEmotes(messageText string) bool {
+	// remove all discord emotes
+	messageText = exprEmotes.ReplaceAllString(messageText, "")
+	// remove all emojis
+	messageText = emoji.RemoveAll(messageText)
+	// remove all whitespace
+	messageText = exprWhitespace.ReplaceAllString(messageText, "")
+
+	// if there's anything left, this message had other text in it
+	return messageText != ""
 }
