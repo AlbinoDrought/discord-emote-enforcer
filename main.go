@@ -59,7 +59,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	handleMessage(s, m.Message)
 }
 
-func messageUpdate(s *discordgo.Session, m *discordgo.MessageCreate) {
+func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	handleMessage(s, m.Message)
 }
 
