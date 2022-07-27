@@ -35,6 +35,7 @@ func main() {
 	}
 	session.AddHandler(ready)
 	session.AddHandler(messageCreate)
+	session.AddHandler(messageUpdate)
 
 	session.Identify.Intents = discordgo.IntentsGuildMessages
 
@@ -55,6 +56,14 @@ func ready(s *discordgo.Session, event *discordgo.Ready) {
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	handleMessage(s, m.Message)
+}
+
+func messageUpdate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	handleMessage(s, m.Message)
+}
+
+func handleMessage(s *discordgo.Session, m *discordgo.Message) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
@@ -72,13 +81,18 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	log.Printf("deleting message %v with %v attachments, content %v", m.ID, len(m.Attachments), m.Content)
+	messageType := "new"
+	if m.EditedTimestamp != nil {
+		messageType = "edited"
+	}
+
+	log.Printf("deleting %v message %v with %v attachments, content %v", messageType, m.ID, len(m.Attachments), m.Content)
 	if err := s.ChannelMessageDelete(m.ChannelID, m.ID); err != nil {
 		log.Printf("failed to delete message %v: %v", m.ID, err)
 	}
 }
 
-func textContainsNonEmotes(messageText string) bool {
+func removeEmotes(messageText string) string {
 	// remove all discord emotes
 	messageText = exprEmotes.ReplaceAllString(messageText, "")
 	// remove all emojis
@@ -86,6 +100,10 @@ func textContainsNonEmotes(messageText string) bool {
 	// remove all whitespace
 	messageText = exprWhitespace.ReplaceAllString(messageText, "")
 
+	return messageText
+}
+
+func textContainsNonEmotes(messageText string) bool {
 	// if there's anything left, this message had other text in it
-	return messageText != ""
+	return removeEmotes(messageText) != ""
 }
