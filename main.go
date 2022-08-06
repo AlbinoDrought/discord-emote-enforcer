@@ -64,8 +64,12 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 }
 
 func handleMessage(s *discordgo.Session, m *discordgo.Message) {
-	if m.Author.ID == s.State.User.ID {
-		return
+	if m.Author != nil && s.State != nil && s.State.User != nil {
+		if m.Author.ID == s.State.User.ID {
+			return
+		}
+	} else {
+		log.Printf("unexpected nil values? author %v state %v", m.Author, s.State)
 	}
 
 	if m.GuildID != guildID || m.ChannelID != channelID {
