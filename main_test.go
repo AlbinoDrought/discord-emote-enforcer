@@ -24,13 +24,19 @@ func Test_textContainsNonEmotes(t *testing.T) {
 			"How did you",
 			true,
 		},
-		// real life
+		// text + emoji basecase
 		{
-			"🕓 🚶 🏈 🏟️", // failing
+			"How did you 🏟️",
+			true,
+		},
+
+		// real life below this point
+		{
+			"🕓 🚶 🏈 🏟️", // failing with go-emoji-utils
 			false,
 		},
 		{
-			"🕓 🏃 🏈 🏟️", // failing
+			"🕓 🏃 🏈 🏟️", // failing with go-emoji-utils
 			false,
 		},
 		{
@@ -38,23 +44,23 @@ func Test_textContainsNonEmotes(t *testing.T) {
 			false,
 		},
 		{
-			"👨‍💼👨‍💻🥲",
+			"👨‍💼👨‍💻🥲", // failing with go-emoji-utils + stock data, passes with aftermarket
 			false,
 		},
 		{
-			"🧑‍💼🥲",
+			"🧑‍💼🥲", // failing with go-emoji-utils + stock data, passes with aftermarket
 			false,
 		},
 		{
-			"🧑‍💻🥲",
+			"🧑‍💻🥲", // failing with go-emoji-utils + stock data, passes with aftermarket
 			false,
 		},
 		{
-			"🧑‍💼🥲",
+			"🧑‍💼🥲", // failing with go-emoji-utils + stock data, passes with aftermarket
 			false,
 		},
 		{
-			"☁️, 🆗️❓",
+			"☁️, 🆗️❓", // contains comma
 			true,
 		},
 	}

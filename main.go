@@ -1,8 +1,6 @@
 package main
 
 import (
-	_ "embed"
-	"encoding/json"
 	"log"
 	"os"
 	"os/signal"
@@ -10,7 +8,7 @@ import (
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
-	emoji "github.com/tmdvs/Go-Emoji-Utils"
+	"go.albinodrought/discord-emote-channel/internal/emojis"
 )
 
 var (
@@ -21,15 +19,6 @@ var (
 	exprEmotes     = regexp.MustCompile(`(<a?:[^:]+:\d+>)`)
 	exprWhitespace = regexp.MustCompile(`(\s+)`)
 )
-
-//go:embed data/emoji.json
-var emojiData []byte
-
-func init() {
-	if err := json.Unmarshal(emojiData, &emoji.Emojis); err != nil {
-		panic(err)
-	}
-}
 
 func main() {
 	authenticationToken := os.Getenv("DEC_TOKEN")
@@ -111,7 +100,7 @@ func removeEmotes(messageText string) string {
 	// remove all discord emotes
 	messageText = exprEmotes.ReplaceAllString(messageText, "")
 	// remove all emojis
-	messageText = emoji.RemoveAll(messageText)
+	messageText = emojis.Replacer.Replace(messageText)
 	// remove all whitespace
 	messageText = exprWhitespace.ReplaceAllString(messageText, "")
 
