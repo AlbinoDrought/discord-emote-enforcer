@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
-	emoji "github.com/tmdvs/Go-Emoji-Utils"
+	"go.albinodrought/discord-emote-channel/internal/emojis"
 )
 
 var (
@@ -100,7 +100,7 @@ func removeEmotes(messageText string) string {
 	// remove all discord emotes
 	messageText = exprEmotes.ReplaceAllString(messageText, "")
 	// remove all emojis
-	messageText = emoji.RemoveAll(messageText)
+	messageText = emojis.Replacer.Replace(messageText)
 	// remove all whitespace
 	messageText = exprWhitespace.ReplaceAllString(messageText, "")
 
