@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "embed"
+	"encoding/json"
 	"log"
 	"os"
 	"os/signal"
@@ -19,6 +21,15 @@ var (
 	exprEmotes     = regexp.MustCompile(`(<a?:[^:]+:\d+>)`)
 	exprWhitespace = regexp.MustCompile(`(\s+)`)
 )
+
+//go:embed data/emoji.json
+var emojiData []byte
+
+func init() {
+	if err := json.Unmarshal(emojiData, &emoji.Emojis); err != nil {
+		panic(err)
+	}
+}
 
 func main() {
 	authenticationToken := os.Getenv("DEC_TOKEN")
