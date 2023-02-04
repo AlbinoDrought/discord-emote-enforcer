@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -12,7 +13,8 @@ import (
 )
 
 var (
-	guildID, channelID string
+	guildID    string
+	channelIDs []string
 )
 
 var (
@@ -23,7 +25,8 @@ var (
 func main() {
 	authenticationToken := os.Getenv("DEC_TOKEN")
 	guildID = os.Getenv("DEC_GUILD_ID")
-	channelID = os.Getenv("DEC_CHANNEL_ID")
+	channelID := os.Getenv("DEC_CHANNEL_ID")
+	channelIDs = strings.Split(channelID, ",")
 
 	if authenticationToken == "" || guildID == "" || channelID == "" {
 		log.Fatal("require DEC_TOKEN, DEC_GUILD_ID, DEC_CHANNEL_ID")
@@ -51,6 +54,15 @@ func main() {
 	log.Println("I'm closing 😢")
 }
 
+func contains(values []string, value string) bool {
+	for i := range values {
+		if values[i] == value {
+			return true
+		}
+	}
+	return false
+}
+
 func ready(s *discordgo.Session, event *discordgo.Ready) {
 	s.UpdateGameStatus(0, "hi")
 }
@@ -72,7 +84,7 @@ func handleMessage(s *discordgo.Session, m *discordgo.Message) {
 		log.Printf("unexpected nil values? author %v state %v", m.Author, s.State)
 	}
 
-	if m.GuildID != guildID || m.ChannelID != channelID {
+	if m.GuildID != guildID || !contains(channelIDs, m.ChannelID) {
 		return
 	}
 
